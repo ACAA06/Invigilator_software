@@ -1,0 +1,6 @@
+sno,exam_name,date,day,time,subj_id,semester
+1,p1,Feb-10-2020,mon,9.30-10.30,15cse301,II
+2,p1,Feb-11-2020,tue,9.30-10.30,15cse302,II
+3,p1,Feb-12-2020,wed,9.30-10.30,15cse303,II
+4,p1,Feb-13-2020,thurs,9.30-10.30,15cse304,II
+5,p1,Feb-14-2020,fri,9.30-10.30,15cse305,II

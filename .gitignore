@@ -1,0 +1,12 @@
+config.env
+__pycache__/*
+untitled/__pycache__/*
+software/migrations/__pycache__/*
+software/__pycache__/*
+.progress
+.vscode/*
+.idea/*
+*secret*
+error.log
+bin/*
+venv/*
