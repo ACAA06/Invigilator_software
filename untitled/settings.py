@@ -78,10 +78,10 @@ WSGI_APPLICATION = 'untitled.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'invigilatorp',
+        'NAME': 'invigilator',
         'USER': 'admin',
         'PASSWORD': '12345678',
-        'HOST': 'database-1.cnvdeoi9dkyd.us-east-1.rds.amazonaws.com',
+        'HOST': 'database-1.cgma11ukrgzn.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"

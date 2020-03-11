@@ -1,15 +1,14 @@
-from django.shortcuts import render,redirect
-import xlrd
+import math
 import os
-from django.core.mail import send_mail
-from django.http import HttpResponse
-from django.contrib import messages
-from django.contrib.auth.models import auth,User
-from django.contrib.auth import authenticate,login
-from .models import fdetail,Exam,Department,f_sem,Available,allotment,Rooms
-from django.core.files.storage import FileSystemStorage
+
 import pandas as pd
-import numpy as np
+from django.contrib import messages
+from django.contrib.auth.models import auth, User
+from django.core.files.storage import FileSystemStorage
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+
+from .models import fdetail, Exam, Department, f_sem, Available, allotment, Rooms, Building, Availablerooms
 
 # Create your views here.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -68,7 +67,7 @@ def dashboard(request):
         return redirect('login')
 def fdashboard(request):
     if auth.user_logged_in:
-        return render(request,"facultydash.html")
+        return redirect('fallotment')
     else:
         messages.info(request, "U haven't logged in")
         return redirect('login')
@@ -98,6 +97,25 @@ def addfaculty(request):
     else:
         return render(request,'addfaculty.html')
 
+
+def addroom(request):
+    if request.method == 'POST':
+        roomno = request.POST['roomno']
+        strength = request.POST['strength']
+        tt = request.FILES['tt']
+        building = request.POST['username']
+        lab = request.POST.get('lab', '') == 'on'
+        # print(tt)
+        fs = FileSystemStorage()
+        filename = fs.save(tt.name, tt)  # saves the file to `media` folder
+        user1 = Rooms(roomno=roomno, strength=strength, building=Building.objects.get(buildingname=building),
+                      roomtt=tt.name, Lab=lab)
+        user1.save()
+        return redirect('dashboard')
+    else:
+        a = Building.objects.values('buildingname')
+        return render(request, 'addroom.html', {'bid': a})
+
 def addtimetable(request):
     if request.method=="POST":
         username=request.POST['username']
@@ -120,10 +138,11 @@ def addexam(request):
         ett = request.FILES['ett']
         year=request.POST['year']
         eid = request.POST['eid']
+        st = request.POST['st']
         # print(tt)
         fs = FileSystemStorage()
         filename = fs.save(ett.name, ett)  # saves the file to `media` folder
-        exam1 = Exam(etimetable=ett.name,eid=eid,year=year)
+        exam1 = Exam(etimetable=ett.name, eid=eid, year=year, students=st)
         exam1.save()
         return redirect('dashboard')
     else:
@@ -139,7 +158,9 @@ def allotfaculty(request):
                 eday=[]
                 edate=[]
                 etime=[]
+                eroom = []
                 available = []
+                streng = []
                 et=request.POST['submit']
                 ex=Exam.objects.get(etimetable=et)
                 bool=ex.allot
@@ -160,10 +181,13 @@ def allotfaculty(request):
                 df1 = pd.read_csv(path1+et)
                 semester = df1['semester']
                 semester = list(dict.fromkeys(semester))
-                faculty=f_sem.objects.values('fid').get(semester=semester[0])
-                print(faculty)
+                # faculty=f_sem.objects.values('fid').get(semester=semester[0])
+                # print(faculty)
                 for z in range(len(df1)):
                     x1 = df1['time'][z]
+                    strength = df1['no of students'][z] / 30
+                    strength = math.ceil(strength)
+                    streng.append(strength)
                     etime.append(x1)
                     start, end = x1.split('-')
                     if float(start) > 8.40 and float(start) <= 9.30:
@@ -205,6 +229,40 @@ def allotfaculty(request):
                         end = 9
                     day = df1['day'][z]
                     date=df1['date'][z]
+                    room = Rooms.objects.values('roomtt')
+                    availablerooms = []
+                    for dr in range(len(room)):
+                        dfr = pd.read_csv(path1 + str(room[dr]['roomtt']))
+                        roomflag = 0
+                        index = 0
+                        for da in range(0, 5):
+                            if day in str(dfr.iloc[da, 0]).lower():
+                                index = da
+                                break
+                        for j in range(start, end + 1):
+                            # print(str(dfr.iloc[index, j]))
+                            if str(dfr.iloc[index, j]) == 'nan' or semester[0] in str(dfr.iloc[index, j]):
+                                pass
+                            else:
+                                roomflag = 1
+                                break
+                            # print(Rooms.objects.values('strength').get(roomtt=str(room[dr]['roomtt']))['strength'])
+                        # print(Rooms.objects.values('strength').get(roomtt=str(room[dr]['roomtt'])))
+                        a = Rooms.objects.values('Lab').get(roomtt=str(room[dr]['roomtt']))
+                        if roomflag == 0 and Rooms.objects.values('strength').get(roomtt=str(room[dr]['roomtt']))[
+                            'strength'] != 100 and a['Lab'] == False:
+                            availablerooms.append(room[dr])
+                            ar = Availablerooms(date=date, Time=x1, room=Rooms.objects.get(roomtt=room[dr]['roomtt']))
+                            ar.save()
+                        if dr == len(room) - 1:
+                            while len(availablerooms) < strength:
+                                ar = Availablerooms(date=date, Time=x1,
+                                                    room=Rooms.objects.get(roomno='SH-1'))
+                                ar.save()
+                                availablerooms.append('SH1')
+
+                    eroom.append(availablerooms)
+                    #print(eroom)
                     eday.append(day)
                     edate.append(date)
                     q = "I Sem"
@@ -265,20 +323,64 @@ def allotfaculty(request):
                         avail.save()
                     fl.append(available2)
                     print(fl)
-                a = Available.objects.all()
-                udates=[]
-                for i in a:
-                    if i.date not in udates:
+                a = Available.objects.order_by('fid__fdetail__countofduties')
+                print(a)
+                udates = []
+                j = 0
+                # for i in a:
+                l = 0
+                k = 0
+                print(streng)
+                for z in range(len(df1)):
+                    j = 0
+                    k = 0
+                    for i in a:
+                        if df1['date'][z] == i.date and df1['time'][z] == i.Time and str(df1['software'][z]) == 'nan':
+                            print(type(User.objects.get(username=fdetail.objects.get(fid_id=i.fid_id).fid.username).id))
+                            ar = Availablerooms.objects.values('room').filter(date=i.date)
+                            print(ar[j]['room'])
+                            all = allotment(date=i.date, time=i.Time, fid=User.objects.get(
+                                username=fdetail.objects.get(fid_id=i.fid_id).fid.username), ename=df1['exam_name'][z],
+                                            sname=df1['subj_id'][z], semester=df1['semester'][z],
+                                            roomno_id=ar[j]['room'])
+                            all.save()
+                            c = fdetail.objects.get(fid_id=i.fid_id)
+                            c.countofduties = c.countofduties + 1
+                            c.save()
+                            j += 1
+                            k += 1
+                        elif df1['date'][z] == i.date and df1['time'][z] == i.Time and str(df1['software'][z]) != 'nan':
+                            print(Rooms.objects.filter(Lab=True))
+                            all = allotment(date=i.date, time=i.Time, fid=User.objects.get(
+                                username=fdetail.objects.get(fid_id=i.fid_id).fid.username), ename=df1['exam_name'][z],
+                                            sname=df1['subj_id'][z], semester=df1['semester'][z],
+                                            roomno=Rooms.objects.filter(Lab=True)[l])
+                            all.save()
+                            l += 1
+                            c = fdetail.objects.get(fid_id=i.fid_id)
+                            c.countofduties = c.countofduties + 1
+                            c.save()
+                            k += 1
+
+                        if k >= streng[z]:
+                            break
+
+                    '''if i.date not in udates:#this is where it goes wrong change here to search in the available faculties.
                         udates.append(i.date)
                         for z in range(len(df1)):
                             if df1['date'][z]==i.date and df1['time'][z]==i.Time:
                                 print(type(User.objects.get(username=fdetail.objects.get(fid_id=i.fid_id).fid.username).id))
-                                all=allotment(date=i.date, time=i.Time, fid=User.objects.get(username=fdetail.objects.get(fid_id=i.fid_id).fid.username), ename=df1['exam_name'][z],sname=df1['subj_id'][z],semester=df1['semester'][z],roomno=Rooms.objects.get(roomno='A-102'))
+                                ar=Availablerooms.objects.values('room').filter(date=i.date)
+                                print(ar)
+                                all=allotment(date=i.date, time=i.Time, fid=User.objects.get(username=fdetail.objects.get(fid_id=i.fid_id).fid.username), ename=df1['exam_name'][z],sname=df1['subj_id'][z],semester=df1['semester'][z],roomno_id=Availablerooms.objects.values('room').get(date=i.date)['room'])
                                 all.save()
                                 c=fdetail.objects.get(fid_id=i.fid_id)
                                 c.countofduties=c.countofduties+1
-                                c.save()
-                return render(request,'allotment.html',{'fl':fl,'etime':etime,'edate':edate,'eday':eday,'leng': range(len(df1)),'bool': bool})
+                                c.save()'''
+
+                return render(request, 'allotment.html',
+                              {'fl': fl, 'etime': etime, 'edate': edate, 'eday': eday, 'leng': range(len(df1)),
+                               'eroom': eroom, 'bool': bool})
 
 
         else:

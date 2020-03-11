@@ -1,8 +1,6 @@
-from django.db import models
-from datetime import date
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from datetime import date,time,datetime
+from django.db import models
+
 
 # Create your models here.#rooms=models.ManyToOneRel(allotment,on_delete=models.CASCADE)
 
@@ -21,6 +19,7 @@ class Exam(models.Model):
     etimetable = models.FileField(upload_to='ftimetable',default="e.txt")
     year=models.IntegerField(null=False,default=1)
     allot=models.BooleanField(default=False)
+    students = models.IntegerField(null=False)
 
 class Subject(models.Model):
     scode=models.IntegerField(primary_key=True)
@@ -35,9 +34,21 @@ class Strength(models.Model):
 class Building(models.Model):
     buildingname=models.CharField(max_length=20)
     department=models.ForeignKey(Department,on_delete=models.CASCADE)
+
 class Rooms(models.Model):
     roomno=models.CharField(max_length=20)
     building=models.ForeignKey(Building,on_delete=models.CASCADE)
+    roomtt = models.FileField(upload_to='ftimetable')
+    strength = models.IntegerField(null=False)
+    Lab = models.BooleanField(default=False)
+
+
+class Availablerooms(models.Model):
+    room = models.ForeignKey(Rooms, on_delete=models.CASCADE)
+    date = models.CharField(max_length=20)
+    Time = models.CharField(max_length=20)
+
+
 class allotment(models.Model):
     fid=models.ForeignKey(User,on_delete=models.CASCADE)
     date=models.CharField(max_length=20,default="1")
@@ -47,6 +58,9 @@ class allotment(models.Model):
     sname=models.CharField(max_length=30,default="XYZ")
     roomno=models.ForeignKey(Rooms,on_delete=models.CASCADE,default=0)
     alter=models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("fid", "date", "sname"),)
 class Available(models.Model):
     fid = models.ForeignKey(User,on_delete=models.CASCADE)
     date = models.CharField(max_length=20)

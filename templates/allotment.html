@@ -6364,6 +6364,9 @@
                           <select id = "myList" name="{{ i }}">
                  {% for u in fl.pop  %}
                  <option value = "{{ u }}">{{ u }}</option>
+                 {% endfor %}<h4>Rooms available :</h4>
+                              {% for k in eroom.pop %}
+                                  <option value="{{ k }}">{{ k }}</option>
                  {% endfor %}
              </select>
                     </div>
