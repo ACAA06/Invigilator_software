@@ -384,9 +384,10 @@ def allotfaculty(request):
 
 
         else:
+            a = allotment.objects.all()
             return render(request, 'allotment.html',
                           {
-                           'bool': ex.allot})
+                           'bool': ex.allot,'a':a})
             #return render(request,'')
     elif request.method!='POST':
         exam1=Exam.objects.values('etimetable')
@@ -417,13 +418,19 @@ def alteration(request):
     i=request.POST['alter']
     print(i)
     available=Available.objects.filter(date=i)
-    ao=allotment.objects.get(date=i,fid_id=user.id)
+    ao1=allotment.objects.get(date=i,fid_id=user.id)
+    ao=allotment.objects.values('fid_id').filter(date=i)
     print(available)
     flag=0
+    k=0
+    print(ao)
+    aoo=[]
+    for i in range(len(ao)):
+        aoo.append(ao[i]['fid_id'])
     if available.exists():
         for j in available:
             print(str(j.fid_id) + " " + str(user.id))
-            if j.fid_id != user.id:
+            if j.fid_id != user.id and j.fid_id not in aoo:
                 try:
                     all = allotment.objects.get(fid_id=j.fid_id, date=i)
                     if all.exists():
@@ -431,9 +438,10 @@ def alteration(request):
                         continue
                 except:
                     flag = 0
-                    ao.fid_id = j.fid_id
-                    ao.alter = True
-                    z = ao.save()
+                    ao1.fid_id = j.fid_id
+                    ao1.alter = True
+                    z = ao1.save()
+                    print(j.fid_id)
                     return render(request, 'alteration.html', {'a': 'Requested faculty!!'})
             else:
                 flag=1

@@ -875,7 +875,9 @@
  .documentation .dropdown .dropdown-menu.show {
      transform: translate3d(0, 39px, 0) !important;
  }
- 
+ table, th, td {
+  border: 1px solid black;
+}
  </style>
  <style>
  /*=========================================================
@@ -6192,7 +6194,21 @@
  }
  
  /* all icon font classes list here */
- 
+ table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
  
  </style>
      <div class="wrapper">
@@ -6364,7 +6380,10 @@
                           <select id = "myList" name="{{ i }}">
                  {% for u in fl.pop  %}
                  <option value = "{{ u }}">{{ u }}</option>
-                 {% endfor %}<h4>Rooms available :</h4>
+                 {% endfor %}
+             </select>
+                              <h4>Rooms available :</h4>
+                          <select id = "myList1" name="{{ i }}">
                               {% for k in eroom.pop %}
                                   <option value="{{ k }}">{{ k }}</option>
                  {% endfor %}
@@ -6374,8 +6393,21 @@
                     {% endfor %}
 
                       <button type="submit" name="submit" value="0" class="btn btn-primary">Allot faculties</button>
-{% else %}
+            {% else %}
                   <h3>Faculty has been allotted for the exam</h3>
+                      <table>
+                    {% for j in a %}
+                  <tr>
+                    <th>{{ j.fid.username }}</th>
+                    <th>{{ j.date }}</th>
+                    <th>{{ j.time }}</th>
+                      <th>{{ j.ename }}</th>
+                    <th>{{ j.semester }}</th>
+                      <th>{{ j.sname }}</th>
+                        <th>{{ j.roomno.roomno }}</th>
+                  </tr>
+                    {% endfor %}
+                </table>
                   {% endifequal %}
                   </form>
                 </div>
