@@ -12,12 +12,11 @@ from time import sleep
 import re
 from os import remove
 from os import environ
-from dotenv import load_dotenv
-import sentry_sdk
-from sentry_sdk import capture_exception
+from xvfbwrapper import Xvfb
 
+vdisplay = Xvfb()
+vdisplay.start()
 
-load_dotenv("config.env")
 chrome_options = Options()
 chrome_options.add_argument("--window-size=1920x1080")
 
@@ -46,3 +45,4 @@ btn = driver.find_element_by_name('submit')
 btn.click()
 sleep(10)
 driver.quit()
+vdisplay.stop()
