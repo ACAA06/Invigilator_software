@@ -86,8 +86,8 @@ class AllotmentTestCase(TestCase):
         Building.objects.create(department=Department(did=1, dname="some_dept"),buildingname="AB3")
         kek=Building(department=Department(did=1, dname="some_dept"),buildingname="AB3")
         kek.save()
-        Rooms.objects.create(roomno="G303", building=kek)
-        lel=Rooms(roomno="G303", building=kek)
+        Rooms.objects.create(roomno="G303", building=kek, roomtt="ftimetable/A102.csv", strength=30)
+        lel=Rooms(roomno="G303", building=kek, roomtt="ftimetable/A102.csv", strength=30)
         lel.save()         
         allotment.objects.create(fid=lol, date="1/1/2020", time="9:30", ename="K0", semester="S7", sname="MOT", roomno=lel, alter=False)
         
@@ -105,4 +105,4 @@ class AvailableTestCase(TestCase):
     def test_available(self):
         """Availables are correctly identified"""
         test1 = Available.objects.get(date="1/1/2020")
-        self.assertEqual(test1.time,"9:30")
+        self.assertEqual(test1.Time,"9:30")
