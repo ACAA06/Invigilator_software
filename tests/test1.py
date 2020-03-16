@@ -29,7 +29,7 @@ class FDetailTestCase(TestCase):
 
 class ExamTestCase(TestCase):
     def setUp(self):
-        Exam.objects.create(eid=1, etimetable="ftimetable\\final-exam-tt - Sheet1 (2)_AY3kUlc.csv", year=2020, allot=False)
+        Exam.objects.create(eid=1, etimetable="ftimetable/final-exam-tt - Sheet1 (2)_AY3kUlc.csv", year=2020, allot=False, students=30)
 
     def test_exam(self):
         """Check if Exam is identified"""
@@ -71,7 +71,7 @@ class RoomTestCase(TestCase):
         Building.objects.create(department=Department(did=1, dname="some_dept"),buildingname="AB3")
         kek=Building(department=Department(did=1, dname="some_dept"),buildingname="AB3")
         kek.save()
-        Rooms.objects.create(roomno="G303", building=kek)
+        Rooms.objects.create(roomno="G303", building=kek, roomtt="ftimetable/A102.csv", strength=30)
 
     def test_rooms(self):
         """Rooms are correctly identified"""
@@ -100,7 +100,7 @@ class AvailableTestCase(TestCase):
     def setUp(self):
         lol=User(username="username", password="password")
         lol.save()
-        Available.objects.create(fid=lol, date="1/1/2020", time="9:30")
+        Available.objects.create(fid=lol, date="1/1/2020", Time="9:30")
 
     def test_available(self):
         """Availables are correctly identified"""

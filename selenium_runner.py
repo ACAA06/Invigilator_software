@@ -38,6 +38,7 @@ pwd.send_keys('12345')
 btn.click()
 
 driver.get("http://127.0.0.1:8000/addfaculty")
+
 driver.get("http://127.0.0.1:8000/addtimetable")
 driver.get("http://127.0.0.1:8000/addexam")
 driver.get("http://127.0.0.1:8000/allotfaculty")
