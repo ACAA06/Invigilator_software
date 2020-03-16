@@ -1,5 +1,5 @@
 build:
   docker:
-    worker: Dockerfile
+    web: Dockerfile
 run:
-  worker: gunicorn untitled.wsgi
+  web: gunicorn untitled.wsgi -b 0.0.0.0:5000 --error-logfile -
