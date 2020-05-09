@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'j6+5&kc95s47p)&__8i+fw!j9eaap(&5+ny1(gidqg9!w*bm5#'
+#SECRET_KEY = 'j6+5&kc95s47p)&__8i+fw!j9eaap(&5+ny1(gidqg9!w*bm5#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'invigilator',
         'USER': 'admin',
-        'PASSWORD': '12345678',
+        'PASSWORD': '########',
         'HOST': 'database-1.cgma11ukrgzn.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
         'OPTIONS': {
@@ -129,11 +129,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = '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'
-EMAIL_USE_TLS = True
+#EMAIL_HOST = 'smtp.sendgrid.net'
+#EMAIL_PORT = 587
+#EMAIL_HOST_USER = 'apikey'
+#EMAIL_HOST_PASSWORD = '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'
+#EMAIL_USE_TLS = True
 
 MEDIA_URL='/ftimetable/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'ftimetable')
