@@ -132,7 +132,7 @@ STATIC_URL = '/static/'
 #EMAIL_HOST = 'smtp.sendgrid.net'
 #EMAIL_PORT = 587
 #EMAIL_HOST_USER = 'apikey'
-#EMAIL_HOST_PASSWORD = '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'
+#EMAIL_HOST_PASSWORD = ''
 #EMAIL_USE_TLS = True
 
 MEDIA_URL='/ftimetable/'
